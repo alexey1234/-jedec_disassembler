@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAME JEDutil — JEDEC Disassembler</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <div class="logo monospace">JU</div>
+            <div>
+                <h1>JEDutil PLD Disassembler</h1>
+                <p>Local WebAssembly disassembler for .JED file text content</p>
+            </div>
+        </div>
+        <div id="statusBadge" class="badge badge-loading">
+            <span class="dot dot-loading"></span>
+            <span>Loading WASM...</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="sidebar">
+            <div class="card card-flex">
+                <div class="card-title">1. Paste .JED file content</div>
+                <textarea id="jedTextInput" class="textarea-input monospace" placeholder="Paste your JEDEC file text here (starting with STX/ETX or fuse matrix data)..."></textarea>
+            </div>
+
+            <div class="card">
+                <div class="card-title">2. Target Device Architecture</div>
+                <div class="input-group">
+                    <label>Target PLD Model:</label>
+                    <select id="pldTarget" class="input-text monospace">
+                        <option value="18CV8">18CV8</option>
+                        <option value="82S100">82S100</option>
+                        <option value="82S101">82S101</option>
+                        <option value="82S153">82S153</option>
+                        <option value="AMPAL18P8">AMPAL18P8</option>
+                        <option value="ATF16V8">ATF16V8</option>
+                        <option value="ATF20V10">ATF20V10</option>
+                        <option value="ATF22V10">ATF22V10</option>
+                        <option value="ATV750">ATV750</option>
+                        <option value="CK2605">CK2605</option>
+                        <option value="GAL16V8" selected>GAL16V8</option> <!-- По умолчанию -->
+                        <option value="GAL18V10">GAL18V10</option>
+                        <option value="GAL20V8">GAL20V8</option>
+                        <option value="GAL22V10">GAL22V10</option>
+                        <option value="PAL10H8">PAL10H8</option>
+                        <option value="PAL10L8">PAL10L8</option>
+                        <option value="PAL10P8">PAL10P8</option>
+                        <option value="PAL12H10">PAL12H10</option>
+                        <option value="PAL12H6">PAL12H6</option>
+                        <option value="PAL12L10">PAL12L10</option>
+                        <option value="PAL12L6">PAL12L6</option>
+                        <option value="PAL12P6">PAL12P6</option>
+                        <option value="PAL14H4">PAL14H4</option>
+                        <option value="PAL14H8">PAL14H8</option>
+                        <option value="PAL14L4">PAL14L4</option>
+                        <option value="PAL14L8">PAL14L8</option>
+                        <option value="PAL14P4">PAL14P4</option>
+                        <option value="PAL16C1">PAL16C1</option>
+                        <option value="PAL16H2">PAL16H2</option>
+                        <option value="PAL16H6">PAL16H6</option>
+                        <option value="PAL16L2">PAL16L2</option>
+                        <option value="PAL16L6">PAL16L6</option>
+                        <option value="PAL16L8">PAL16L8</option>
+                        <option value="PAL16P2">PAL16P2</option>
+                        <option value="PAL16P8">PAL16P8</option>
+                        <option value="PAL16R4">PAL16R4</option>
+                        <option value="PAL16R6">PAL16R6</option>
+                        <option value="PAL16R8">PAL16R8</option>
+                        <option value="PAL16RP4">PAL16RP4</option>
+                        <option value="PAL16RP6">PAL16RP6</option>
+                        <option value="PAL16RP8">PAL16RP8</option>
+                        <option value="PAL18H4">PAL18H4</option>
+                        <option value="PAL18L4">PAL18L4</option>
+                        <option value="PAL20C1">PAL20C1</option>
+                        <option value="PAL20L10">PAL20L10</option>
+                        <option value="PAL20L2">PAL20L2</option>
+                        <option value="PAL20L8">PAL20L8</option>
+                        <option value="PAL20R4">PAL20R4</option>
+                        <option value="PAL20R6">PAL20R6</option>
+                        <option value="PAL20R8">PAL20R8</option>
+                        <option value="PAL20RA10">PAL20RA10</option>
+                        <option value="PAL20X10">PAL20X10</option>
+                        <option value="PAL20X4">PAL20X4</option>
+                        <option value="PAL20X8">PAL20X8</option>
+                        <option value="PAL22V10">PAL22V10</option>
+                        <option value="PAL6L16">PAL6L16</option>
+                        <option value="PAL8L14">PAL8L14</option>
+                        <option value="PALCE16V8">PALCE16V8</option>
+                        <option value="PALCE20V8">PALCE20V8</option>
+                        <option value="PALCE22V10">PALCE22V10</option>
+                        <option value="PLS100">PLS100</option>
+                        <option value="PLS101">PLS101</option>
+                        <option value="PLS153">PLS153</option>
+                    </select>
+                </div>
+                <button id="btnDecompile" disabled class="btn">⚡ Get equations</button>
+            </div>
+        </div>
+
+        <div class="console-container">
+            <div class="console-header">
+                <div class="console-title monospace">Logic Equations (Output -view)</div>
+                <button id="btnClear" class="clear-btn">Clear Output</button>
+            </div>
+            <div class="console-body monospace" id="terminalConsole">//  Waiting for WebAssembly core initialization...</div>
+        </div>
+    </main>
+
+    <footer>
+         Standalone JEDEC Disassembler based on MAME source code • Runs 100% locally in your browser
+    </footer>
+
+    <!-- Подключаем логику интерфейса и клей-код MAME -->
+    <script src="./app.js"></script>
+    <script src="./jedutil.js"></script>
+</body>
+</html>
+
